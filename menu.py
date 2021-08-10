@@ -1,4 +1,6 @@
 from db_connection import mydb
+from encrypt import encrypt, decrypt
+import keys
 
 def get_main_menu():
 	# Main menu
@@ -9,7 +11,7 @@ def get_main_menu():
 
 	return input(': ')
 
-def add_new_pwd():
+def add_new_pwd(key):
 	
 	# Get the data
 	password = input('Please type the new password: ')
@@ -18,16 +20,18 @@ def add_new_pwd():
 	url = input('Please type the website domain: ')
 	website = input('Please type the website name: ')
 
-	# Store the data
-	cursor = mydb.cursor()
+	# Encrypt the password
+	password = encrypt(password, key)
 
+	# Store the data in DB
+	cursor = mydb.cursor()
 	sql = 'INSERT INTO accounts (password, username, email, url, website) VALUES (%s, %s, %s, %s, %s)'
 	val = (password, username, email, url, website)
 	cursor.execute(sql, val)
 
 	mydb.commit()
 	
-	print('Added: ')
+	# Retrieve the new record
 	return get_password(email, website)
 
 def get_password(email, website):
@@ -37,6 +41,6 @@ def get_password(email, website):
 	sql = 'SELECT * FROM accounts WHERE email = %s AND website = %s'
 	val = (email, website)
 	cursor.execute(sql, val)
-	new_password = cursor.fetchone()
+	data = cursor.fetchone()
 
-	return new_password
+	return data
