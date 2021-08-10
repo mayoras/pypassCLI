@@ -1,7 +1,8 @@
 from keys import get_secret
 import menu
 
-def display_data(data):
+def display_data(header, data):
+	print('\n{}'.format(header))
 	print('Password: ', data[0])
 	print('Username: ', data[1])
 	print('Email: ', data[2])
@@ -17,8 +18,8 @@ def main():
 	else:
 		print('Sorry, no luck :(')
 		exit()
-
 	print('-' * 5, 'Welcome', '-' * 5)
+
 
 	finish = False
 	while not finish:
@@ -29,10 +30,17 @@ def main():
 			# Add new password
 			result = menu.add_new_pwd(input_secret)
 			if result:
-				print('\nAdded: ')
-				display_data(result)
+				display_data("Password added!", result)
 			else:
 				print('Error: not retrieving data from db')
+		
+		elif selection == '2':
+			# Get password from email/username and website
+			result = menu.get_password(input_secret)
+			if result:
+				display_data("Your password", result)
+			else:
+				print('\nThere is not password for this user/email\n')
 
 		elif selection == 'Q' or selection == 'q':
 			print('Goodbye.')
