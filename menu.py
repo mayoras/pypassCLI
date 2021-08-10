@@ -1,5 +1,5 @@
 from db_connection import mydb
-from helpers.encrypt import encrypt, decrypt
+from helpers.crypto import encrypt, decrypt
 import keys
 from helpers.isEmailOrUsername import isEmail
 
