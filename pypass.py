@@ -16,10 +16,16 @@ def main():
     add_password = subparsers.add_parser(
         'add', help='Add a new password'
     )
+    add_password.add_argument(
+        '-r', '--random', help='Generate a random password'
+    )
     add_password.set_defaults(func=actions.add_new_pwd)
 
     get_password = subparsers.add_parser(
         'get', help='Get a password'
+    )
+    get_password.add_argument(
+        '-a', '--all', help='Get all passwords', action='store_true'
     )
     get_password.set_defaults(func=actions.get_password)
 

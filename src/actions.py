@@ -43,14 +43,30 @@ def add_new_pwd(args, secret):
     # Display data & copy to clipboard
     display_data("Password added 🔏", data)
     copy_to_clipboard(password)
-    exit(0)
+    return
 
 
 def get_password(args, secret):
 
     master = verify_user(secret)
 
-    # Ask user for email/username and website name
+    if args.all:
+
+        ### GET ALL PASSWORDS ###
+
+        data = get_data()
+        if not data:
+            print('There are no passwords')
+            print('Add one with: pypass.py add')
+            exit(0)
+        for pwd in data:
+            pwd = decrypt_data(pwd, master)
+            display_data('👤 User: {}, 🌐website URL: {}'.format(
+                pwd[1], pwd[3]), pwd)
+        return
+
+    ### GET PASSWORD BY EMAIL/USERNAME & WEBSITE NAME ###
+
     while True:
         inp = input("Email/Username & website: ")
         inp = inp.split(' ')
@@ -67,13 +83,23 @@ def get_password(args, secret):
     if not data:
         print('There\'s no password for this user and website')
         exit(1)
+
+    data = decrypt_data(data, master)
+
+    # Return to user
+    display_data('Your password 🔐', data)
+    copy_to_clipboard(data[0])
+    return
+
+
+def decrypt_data(data, master):
     data = list(data)
 
     # Decrypt the password
     decrypted = decrypt(data[0], master)
     data[0] = decrypted
 
-    # Update password encryption
+    # Update password encryption, update nonce
     cursor = mydb.cursor()
     new_encrypted = encrypt(decrypted, master)
     sql = 'UPDATE accounts SET password = %s WHERE email = %s AND website = %s'
@@ -82,13 +108,18 @@ def get_password(args, secret):
 
     mydb.commit()
 
-    # Return to user
-    display_data('Your password 🔐', data)
-    copy_to_clipboard(data[0])
-    exit(0)
+    return data
 
 
-def get_data(emailOrUsername, website):
+def get_data(emailOrUsername=None, website=None):
+
+    cursor = mydb.cursor()
+
+    if not (emailOrUsername or website):
+        # Get all passwords
+        sql = 'SELECT * FROM accounts'
+        cursor.execute(sql)
+        return cursor.fetchall()
 
     # Check if email or username
     email_or_username = 'username'
@@ -96,7 +127,6 @@ def get_data(emailOrUsername, website):
         email_or_username = 'email'
 
     # Get data from db
-    cursor = mydb.cursor()
     sql = 'SELECT * FROM accounts WHERE {} = %s AND website = %s'.format(
         email_or_username)
     val = (emailOrUsername, website)
