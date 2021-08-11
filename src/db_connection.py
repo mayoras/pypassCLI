@@ -1,11 +1,11 @@
 import mysql.connector
-from keys import keys
+from src.keys import keys
 
 mydb = mysql.connector.connect(
-	host='localhost',
-	user=keys['user'],
-	password=keys['password'],
-	database=keys['database']
+    host='localhost',
+    user=keys['user'],
+    password=keys['password'],
+    database=keys['database']
 )
 
 mycursor = mydb.cursor()

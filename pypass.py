@@ -1,6 +1,5 @@
-from secret import get_secret
-import actions
-from helpers.copyToClipboard import copy_to_clipboard
+from src.secret import get_secret
+import src.actions as actions
 import argparse
 
 
@@ -8,11 +7,9 @@ def main():
     # Get the secret to verify authenticity
     secret = get_secret()
 
-    print("-" * 5, "Welcome", "-" * 5)
-
     # Instance the parser
     parser = argparse.ArgumentParser(
-        description='Unique-user password manager CLI')
+        prog='pypass', description='Unique-user password manager CLI')
 
     subparsers = parser.add_subparsers(title='commands')
 

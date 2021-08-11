@@ -1,4 +1,4 @@
-from secret import verify_secret
+from src.secret import verify_secret
 
 
 def verify_user(secret):

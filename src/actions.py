@@ -1,9 +1,8 @@
-from db_connection import mydb
-from helpers.crypto import encrypt, decrypt
-from helpers.isEmailOrUsername import isEmail
-from helpers.verify_user import verify_user
-from helpers.copyToClipboard import copy_to_clipboard
-import keys
+from src.db_connection import mydb
+from src.helpers.crypto import encrypt, decrypt
+from src.helpers.isEmailOrUsername import isEmail
+from src.helpers.verify_user import verify_user
+from src.helpers.copyToClipboard import copy_to_clipboard
 
 
 def display_data(header, data):
