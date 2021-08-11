@@ -62,6 +62,28 @@ def get_data(emailOrUsername=None, website=None):
 
 	return data
 
+def remove_data(emailOrUsername, website):
+	try:
+		cursor = mydb.cursor()
+		# Check if email or username
+		email_or_username = emailOrUsernameCheck(emailOrUsername)
+
+		# Get data from db
+		sql = "DELETE FROM accounts WHERE {} = %s AND website = %s".format(
+			email_or_username
+		)
+		val = (emailOrUsername, website)
+		cursor.execute(sql, val)
+
+		mydb.commit()
+	except:
+		return False
+
+	return True
+
+
+########## ACTIONS ##########
+
 def add_new_pwd(args, secret):
 
 	master = verify_user(secret)
@@ -179,22 +201,3 @@ def rm_password(args, secret):
 
 	return
 
-
-def remove_data(emailOrUsername, website):
-	try:
-		cursor = mydb.cursor()
-		# Check if email or username
-		email_or_username = emailOrUsernameCheck(emailOrUsername)
-
-		# Get data from db
-		sql = "DELETE FROM accounts WHERE {} = %s AND website = %s".format(
-			email_or_username
-		)
-		val = (emailOrUsername, website)
-		cursor.execute(sql, val)
-
-		mydb.commit()
-	except:
-		return False
-
-	return True
