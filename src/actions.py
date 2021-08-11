@@ -33,6 +33,34 @@ def decrypt_data(data, master):
 
 	return data
 
+def emailOrUsernameCheck(emailOrUsername):
+	email_or_username = "username"
+	if isEmail(emailOrUsername):
+		email_or_username = "email"
+	return email_or_username
+
+def get_data(emailOrUsername=None, website=None):
+
+	cursor = mydb.cursor()
+
+	if not (emailOrUsername or website):
+		# Get all passwords
+		sql = "SELECT * FROM accounts"
+		cursor.execute(sql)
+		return cursor.fetchall()
+
+	# Check if email or username
+	email_or_username = emailOrUsernameCheck(emailOrUsername)
+
+	# Get data from db
+	sql = "SELECT * FROM accounts WHERE {} = %s AND website = %s".format(
+		email_or_username
+	)
+	val = (emailOrUsername, website)
+	cursor.execute(sql, val)
+	data = cursor.fetchone()
+
+	return data
 
 def add_new_pwd(args, secret):
 
@@ -104,7 +132,7 @@ def get_password(args, secret):
 	# Get data from database, one password should return
 	data = get_data(emailOrUsername, website)
 	if not data:
-		print("There's no password for this user and website")
+		print("There's no password for this user and website.")
 		exit(1)
 
 	data = decrypt_data(data, master)
@@ -115,27 +143,58 @@ def get_password(args, secret):
 	return
 
 
-def get_data(emailOrUsername=None, website=None):
+def rm_password(args, secret):
 
-	cursor = mydb.cursor()
+	master = verify_user(secret)
 
-	if not (emailOrUsername or website):
-		# Get all passwords
-		sql = "SELECT * FROM accounts"
-		cursor.execute(sql)
-		return cursor.fetchall()
+	while True:
+		inp = input("Email/Username & website: ")
+		inp = inp.split(" ")
+		if len(inp) == 2:
+			break
+		print("Usage: <email/username> <website name>")
+		print("Try again please\n")
 
-	# Check if email or username
-	email_or_username = "username"
-	if isEmail(emailOrUsername):
-		email_or_username = "email"
+	emailOrUsername = inp[0]
+	website = inp[1]
 
-	# Get data from db
-	sql = "SELECT * FROM accounts WHERE {} = %s AND website = %s".format(
-		email_or_username
-	)
-	val = (emailOrUsername, website)
-	cursor.execute(sql, val)
-	data = cursor.fetchone()
+	# Check if password exists
+	data = get_data(emailOrUsername, website)
+	if not data:
+		print("There's no password for this user and website.")
+		exit(1)
 
-	return data
+	confirm = input('Are you sure? [y(es), n(o)] ')
+	if confirm == 'y':
+		if remove_data(emailOrUsername, website):
+			display_data("Password removed 🚮", data)
+		else:
+			print("Password could not be deleted.")
+			exit(1)
+	elif confirm == 'n':
+		print('Password was not removed.')
+	else:
+		print('Option {} is not valid'.format(confirm))
+		exit(1)
+
+	return
+
+
+def remove_data(emailOrUsername, website):
+	try:
+		cursor = mydb.cursor()
+		# Check if email or username
+		email_or_username = emailOrUsernameCheck(emailOrUsername)
+
+		# Get data from db
+		sql = "DELETE FROM accounts WHERE {} = %s AND website = %s".format(
+			email_or_username
+		)
+		val = (emailOrUsername, website)
+		cursor.execute(sql, val)
+
+		mydb.commit()
+	except:
+		return False
+
+	return True

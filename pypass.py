@@ -32,6 +32,11 @@ def main():
 	)
 	get_password.set_defaults(func=actions.get_password)
 
+	rm_password = subparsers.add_parser(
+		'remove', help='Remove a password'
+	)
+	rm_password.set_defaults(func=actions.rm_password)
+
 	args = parser.parse_args()
 	args.func(args, secret)
 
