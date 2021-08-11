@@ -1,2 +1,2 @@
 ## PypassCLI
-A dead simple password manager CLI written in python, using MySQL database
+A dead simple password manager CLI written in Python, using MySQL database
