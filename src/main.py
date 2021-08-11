@@ -1,4 +1,4 @@
-from keys import get_secret
+from secret import get_secret, verify_secret
 import menu
 from helpers.copyToClipboard import copy_to_clipboard
 
@@ -14,13 +14,10 @@ def display_data(header, data):
 
 def main():
     secret = get_secret()
-    input_secret = input("Please type master password: ")
+    input_secret = input("Please type your master password: ")
 
-    if input_secret == secret:
-        print("You're in :)")
-    else:
-        print("Sorry, no luck :(")
-        exit()
+    verify_secret(input_secret, secret)
+
     print("-" * 5, "Welcome", "-" * 5)
 
     finish = False

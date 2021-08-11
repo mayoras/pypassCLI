@@ -1,2 +1,2 @@
-## Pypass
-A simple password manager written in python
+## PypassCLI
+A simple password manager CLI written in python using MySQL Database

@@ -11,3 +11,4 @@ CREATE TABLE accounts (
 	url varchar(255),
 	website varchar(255)
 );
+
