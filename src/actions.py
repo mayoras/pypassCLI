@@ -88,11 +88,7 @@ def rm_password(args, secret):
 
 	emailOrUsername, website = get_db_keys()
 
-	# Check if password exists
 	data = get_data(emailOrUsername, website)
-	if not data:
-		print("There's no password for this user and website.")
-		exit(1)
 
 	confirm = input('Are you sure? [y(es), n(o)] ')
 	if confirm == 'y':
@@ -110,9 +106,19 @@ def rm_password(args, secret):
 	return
 
 def change_pwd(args, secret):
+
+	if not (args.master or args.password):
+		print('Usage: pypass change <-p | -m>')
+		exit(1)
+
 	master = verify_user(secret)
 
 	if args.master:
+
+		if args.random or args.size:
+			print('Master key cannot be random')
+			exit(1)
+
 		## Change master key
 
 		new_master = get_new_pwd()
@@ -131,8 +137,7 @@ def change_pwd(args, secret):
 
 	elif args.password:
 
-		# Get password
-
+		# Get the keys to change the password
 		emailOrUsername, website = get_db_keys()
 
 		# emailOrUsername = inp[0]
@@ -141,11 +146,13 @@ def change_pwd(args, secret):
 		data = get_data(emailOrUsername, website)
 		data = list(data)
 
-		new_pwd = get_new_pwd()
-		data[0] = new_pwd
-		update_pwd(data, master)
-		display_data("Password changed:", data)
-
+		new_pwd = get_new_pwd(args=args)
+		if new_pwd:
+			data[0] = new_pwd
+			update_pwd(data, master)
+			display_data("Password changed:", data)
+		else:
+			return
 		return
 
 #############################
@@ -200,6 +207,11 @@ def get_data(emailOrUsername=None, website=None):
 	cursor.execute(sql, val)
 	data = cursor.fetchone()
 
+	# Check if password exists
+	if not data:
+		print("There's no password for this user and website.")
+		exit(1)
+
 	return data
 
 def remove_data(emailOrUsername, website):
@@ -232,19 +244,25 @@ def update_pwd(dec_data, master):
 
 	mydb.commit()
 
-def get_new_pwd():
-	while True:
-			new_pwd = input('Type new password: ')
-			if new_pwd == input('Confirm new password: '):
-				break
-			print('FAIL: new master key confirmation failed\nTry Again\n')
+def get_new_pwd(args=None):
+
+	if args and args.random:
+		size = int(args.size) if args.size else 10
+		new_pwd = gen_random_str(size)
+	else:
+		while True:
+				new_pwd = input('Type new password: ')
+				if new_pwd == input('Confirm new password: ') or len(new_pwd) < 1:
+					break
+				print('FAIL: new password confirmation failed\nTry Again\n')
 
 	# Confirm
-	confirm = input('Are you sure? [y(es) n(o)]: ')
-	if confirm == 'n':
-		print('\nPassword has no changed')
+	print('Your new password is:', new_pwd)
+	confirm = input('Are you sure you want to make changes? [y(es) n(o)]: ').lower()
+	if confirm == 'n' or confirm == 'no':
+		print('\nPassword has no created or change')
 		return
-	elif confirm != 'y':
+	elif confirm != 'y' and confirm != 'yes':
 		print('Option is not valid')
 		exit(1)
 	return new_pwd
