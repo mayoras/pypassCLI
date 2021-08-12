@@ -1,11 +1,31 @@
 from src.db_connection import mydb
 from src.helpers.crypto import encrypt, decrypt
-from src.helpers.isEmailOrUsername import isEmail
 from src.helpers.verify_user import verify_user
 from src.helpers.copyToClipboard import copy_to_clipboard
 from src.helpers.random import gen_random_str
 from src.secret import change_secret
+from src.lib.input import get_db_keys, get_new_pwd
+from src.lib.db import get_data, remove_data, update_pwd
 
+def display_data(header, data):
+	print("\n{}\n".format(header))
+	print("Password: ", data[0])
+	print("Username: ", data[1])
+	print("Email: ", data[2])
+	print("Url: ", data[3])
+	print("Website: ", data[4], "\n")
+
+
+def decrypt_data(data, master):
+	data = list(data)
+
+	# Decrypt the password
+	decrypted = decrypt(data[0], master)
+	data[0] = decrypted
+
+	update_pwd(data, master)
+
+	return data
 
 #############################
 ########## ACTIONS ##########
@@ -91,13 +111,13 @@ def rm_password(args, secret):
 	data = get_data(emailOrUsername, website)
 
 	confirm = input('Are you sure? [y(es), n(o)] ')
-	if confirm == 'y':
+	if confirm == 'y' or confirm == 'yes':
 		if remove_data(emailOrUsername, website):
 			display_data("Password removed 🚮", data)
 		else:
 			print("Password could not be deleted.")
 			exit(1)
-	elif confirm == 'n':
+	elif confirm == 'n' or confirm == 'no':
 		print('Password was not removed.')
 	else:
 		print('Option {} is not valid'.format(confirm))
@@ -154,128 +174,3 @@ def change_pwd(args, secret):
 		else:
 			return
 		return
-
-#############################
-#############################
-#############################
-
-def display_data(header, data):
-	print("\n{}\n".format(header))
-	print("Password: ", data[0])
-	print("Username: ", data[1])
-	print("Email: ", data[2])
-	print("Url: ", data[3])
-	print("Website: ", data[4], "\n")
-
-
-def decrypt_data(data, master):
-	data = list(data)
-
-	# Decrypt the password
-	decrypted = decrypt(data[0], master)
-	data[0] = decrypted
-
-	# mydb.commit()
-	update_pwd(data, master)
-
-	return data
-
-def emailOrUsernameCheck(emailOrUsername):
-	email_or_username = "username"
-	if isEmail(emailOrUsername):
-		email_or_username = "email"
-	return email_or_username
-
-def get_data(emailOrUsername=None, website=None):
-
-	cursor = mydb.cursor()
-
-	if not (emailOrUsername or website):
-		# Get all passwords
-		sql = "SELECT * FROM accounts"
-		cursor.execute(sql)
-		return cursor.fetchall()
-
-	# Check if email or username
-	email_or_username = emailOrUsernameCheck(emailOrUsername)
-
-	# Get data from db
-	sql = "SELECT * FROM accounts WHERE {} = %s AND website = %s".format(
-		email_or_username
-	)
-	val = (emailOrUsername, website)
-	cursor.execute(sql, val)
-	data = cursor.fetchone()
-
-	# Check if password exists
-	if not data:
-		print("There's no password for this user and website.")
-		exit(1)
-
-	return data
-
-def remove_data(emailOrUsername, website):
-	try:
-		cursor = mydb.cursor()
-		# Check if email or username
-		email_or_username = emailOrUsernameCheck(emailOrUsername)
-
-		# Get data from db
-		sql = "DELETE FROM accounts WHERE {} = %s AND website = %s".format(
-			email_or_username
-		)
-		val = (emailOrUsername, website)
-		cursor.execute(sql, val)
-
-		mydb.commit()
-	except:
-		return False
-
-	return True
-
-def update_pwd(dec_data, master):
-	
-	# Update password encryption, update nonce
-	cursor = mydb.cursor()
-	new_encrypted = encrypt(dec_data[0], master)
-	sql = "UPDATE accounts SET password = %s WHERE email = %s AND website = %s"
-	val = (new_encrypted, dec_data[2], dec_data[4])
-	cursor.execute(sql, val)
-
-	mydb.commit()
-
-def get_new_pwd(args=None):
-
-	if args and args.random:
-		size = int(args.size) if args.size else 10
-		new_pwd = gen_random_str(size)
-	else:
-		while True:
-				new_pwd = input('Type new password: ')
-				if new_pwd == input('Confirm new password: ') or len(new_pwd) < 1:
-					break
-				print('FAIL: new password confirmation failed\nTry Again\n')
-
-	# Confirm
-	print('Your new password is:', new_pwd)
-	confirm = input('Are you sure you want to make changes? [y(es) n(o)]: ').lower()
-	if confirm == 'n' or confirm == 'no':
-		print('\nPassword has no created or change')
-		return
-	elif confirm != 'y' and confirm != 'yes':
-		print('Option is not valid')
-		exit(1)
-	return new_pwd
-
-def get_db_keys():
-		while True:
-			inp = input("Password\'s email/username & website: ")
-			inp = inp.split(" ")
-			if len(inp) == 2:
-				break
-			print("Usage: <email/username> <website name>")
-			print("Try again please\n")
-
-		emailOrUsername = inp[0]
-		website = inp[1]
-		return emailOrUsername, website
