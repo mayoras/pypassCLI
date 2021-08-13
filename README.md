@@ -67,4 +67,4 @@ To remove a password, type:
 ```
 to select what password you would remove.
 #
-Feel free to share ideas to the or contribute to this small project.
+Feel free to share ideas or contribute to this small project.
