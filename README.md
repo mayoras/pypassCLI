@@ -1,17 +1,17 @@
-## PypassCLI
+# PypassCLI
 A dead simple password manager CLI written in Python, using MySQL database
 
-# Create database
+## Create database
 ```bash
 mysql -u <user> -p <password> < ./database/db.sql
 ```
 
-# Install python module
+## Install python module
 ```bash
 sudo sh install.sh
 ```
 
-# Add keys
+## Add keys
 Open the keys.py file and fill out the proper database credentials.
 ```python
 keys = {
@@ -21,9 +21,9 @@ keys = {
 }
 ```
 
-# Usage
+## Usage
 
-## Add command
+### Add command
 To add a password, simply put the add command to open a form to create your password
 ```bash
 ./pypass.py add
@@ -34,7 +34,7 @@ usage: pypass add [-h] [-r] [-s SIZE]
 ```
 
 
-## Get command
+### Get command
 To get a password, as well as the add command, use get to open a form to get your password.
 ```bash
 ./pypass.py get
@@ -44,7 +44,7 @@ To get all passwords:
 ./pypass.py get [-a]
 ```
 
-## Change command
+### Change command
 To change command has two functionalities, change a password or change the master password.
 
 To change the master password
@@ -60,7 +60,7 @@ Use options `-r` and `-s` to specify a random password. The default size is 10
 
 > *Note: You only will be able to change your password, other additional information such like your email, username, will not for now.*
 
-## Remove command
+### Remove command
 To remove a password, type:
 ```bash
 ./pypass.py remove
