@@ -94,11 +94,11 @@ def get_password(args, secret):
 		print("There's no password for this user and website.")
 		exit(1)
 
-	data = decrypt_data(data, master)
+	decrypted_data = decrypt_data(data, master)
 
 	# Return to user
 	display_data("Your password 🔐", data)
-	copy_to_clipboard(data[0])
+	copy_to_clipboard(decrypted_data[0])
 	return
 
 

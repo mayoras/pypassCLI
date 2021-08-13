@@ -1,4 +1,4 @@
-#!/bin/env python3
+#!/usr/bin/env python3
 
 from src.secret import get_secret
 import src.actions as actions
@@ -6,7 +6,7 @@ import argparse
 
 
 def main():
-	# Get the secret to verify authenticity
+	# Get the secret hash key to verify authenticity
 	secret = get_secret()
 
 	# Instance the parser

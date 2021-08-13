@@ -1,4 +1,4 @@
-#!/bin.bash
+#!/bin/bash
 
 install_dependencies() {
     apt install python3 pip xclip
