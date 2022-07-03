@@ -1,6 +1,6 @@
 
 keys = {
-    'user': '',
-    'password': '',
+    'user': 'root',
+    'password': 'mypwdsql',
     'database': 'pypass_db'
 }
